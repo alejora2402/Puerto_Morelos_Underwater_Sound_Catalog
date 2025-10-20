@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /
+
+# This file blocks all search engines from indexing the site.
+# The catalog remains accessible only by direct link.
