@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Catálogo de Sonidos – Puerto Morelos (Standalone)</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:24px;background:#0b1020;color:#e8ecf1}
+    .card{background:#121a33;border:1px solid #1f2a4a;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+    .row{display:grid;grid-template-columns:320px 1fr;gap:16px;align-items:start}
+    @media (max-width: 900px){ .row{grid-template-columns:1fr} }
+    .left{min-width:0}
+    .right{min-width:0}
+    img{width:100%;height:auto;border-radius:12px;border:1px solid #24345f;display:block}
+    .meta{font-size:14px;line-height:1.5;color:#c6d3ea}
+    h1{margin:0 0 16px 0}
+    h2{margin:0 0 4px 0;font-size:20px}
+    audio{width:100%;margin-top:8px}
+    table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
+    td{padding:6px 8px;border-bottom:1px solid #22335c}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#1f2a4a;color:#b9c9ec;font-size:12px;margin-left:8px}
+    .footer{opacity:.75;font-size:12px;margin-top:24px}
+    a{color:#88b4ff}
+    .tag{font-weight:600;color:#a5b8ff}
+  </style>
+</head>
+<body>
+  <h1>Catálogo de Sonidos – Puerto Morelos</h1>
+  <div id="app"></div>
+  <div class="footer">Versión standalone sin fetch. Asegúrate de tener <code>data.js</code>, <code>clips/</code> y <code>spectrograms/</code> al lado.</div>
+
+  <!-- Carga los datos -->
+  <script src="data.js"></script>
+
+  <script>
+  function rowToCard(row){
+    const clipSrc = encodeURI(row["Clip File"] || "");
+    const origSrc = row["Orig File"] || "";
+    const specSrc = encodeURI(row["Spectrogram File"] || "");
+
+    const wrap = document.createElement("div");
+    wrap.className = "card";
+    wrap.innerHTML = [
+      '<div class="row">',
+        '<div class="left">',
+          '<h2>' + (row["Nombre"] || "Sin nombre") + ' <span class="pill">' + (row["ID"] || "") + '</span></h2>',
+          '<audio controls preload="metadata" src="' + clipSrc + '"></audio>',
+          '<div class="meta">',
+            '<div><span class="tag">Original:</span> ' + origSrc + '</div>',
+            '<div><span class="tag">Notas:</span> ' + (row["Notas"] || "") + '</div>',
+          '</div>',
+        '</div>',
+        '<div class="right">',
+          '<img alt="Espectrograma" loading="lazy" src="' + specSrc + '" onerror="this.style.display=\'none\'"/>',
+          '<table>',
+            '<tr><td>Inicio</td><td>' + row["Begin (s)"] + ' s</td></tr>',
+            '<tr><td>Fin</td><td>' + row["End (s)"] + ' s</td></tr>',
+            '<tr><td>Duración</td><td>' + row["Dur (s)"] + ' s</td></tr>',
+            '<tr><td>Frecuencia mínima</td><td>' + row["Low Freq (Hz)"] + ' Hz</td></tr>',
+            '<tr><td>Frecuencia máxima</td><td>' + row["High Freq (Hz)"] + ' Hz</td></tr>',
+            '<tr><td>Frecuencia pico</td><td>' + row["Peak Freq (Hz)"] + ' Hz</td></tr>',
+            '<tr><td>Frecuencia centro</td><td>' + row["Center Freq (Hz)"] + ' Hz</td></tr>',
+            '<tr><td>BW 90%</td><td>' + row["BW 90% (Hz)"] + ' Hz</td></tr>',
+            '<tr><td>SNR</td><td>' + row["SNR (dB)"] + ' dB</td></tr>',
+          '</table>',
+          '<div class="meta" style="margin-top:8px">',
+            '<div><span class="tag">Clip:</span> <a href="' + clipSrc + '" download>' + row["Clip File"] + '</a></div>',
+          '</div>',
+        '</div>',
+      '</div>'
+    ].join("");
+    return wrap;
+  }
+
+  (function render(){
+    var app = document.getElementById('app');
+    if (typeof catalogo === 'undefined' || !Array.isArray(catalogo)) {
+      app.innerHTML = '<div class="card">No se pudo cargar <code>data.js</code>.</div>';
+      return;
+    }
+    if (catalogo.length === 0){
+      app.innerHTML = '<div class="card">No hay entradas en <code>data.js</code>.</div>';
+      return;
+    }
+    for (var i=0; i<catalogo.length; i++){
+      app.appendChild(rowToCard(catalogo[i]));
+    }
+  })();
+  </script>
+</body>
+</html>
